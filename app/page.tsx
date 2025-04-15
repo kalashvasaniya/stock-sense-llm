@@ -1,103 +1,198 @@
-import Image from "next/image";
+"use client"
+import { BarChart } from "@/components/BarChart"
+import { Button } from "@/components/Button"
+import { ComboChart } from "@/components/ComboChart"
+import { ConditionalBarChart } from "@/components/ConditionalBarChart"
+import {
+  CustomTooltip,
+  CustomTooltip2,
+  CustomTooltip3,
+  CustomTooltip4,
+} from "@/components/CustomTooltips"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/Select"
+import { dataChart, dataChart2, dataChart3, dataChart4 } from "@/data/data"
+import { formatters } from "@/lib/utils"
+import { SlidersHorizontal } from "lucide-react"
 
-export default function Home() {
+export default function Monitoring() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <section aria-label="App Monitoring">
+      <div className="flex flex-col items-center justify-between gap-2 p-6 sm:flex-row">
+        <Select defaultValue="365-days">
+          <SelectTrigger className="py-1.5 sm:w-44">
+            <SelectValue placeholder="Assigned to..." />
+          </SelectTrigger>
+          <SelectContent align="end">
+            <SelectItem value="30-days">Last 30 days</SelectItem>
+            <SelectItem value="90-days">Last 90 days</SelectItem>
+            <SelectItem value="180-days">Last 180 days</SelectItem>
+            <SelectItem value="365-days">Last 365 days</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button
+          className="w-full gap-2 py-1.5 text-base sm:w-fit sm:text-sm"
+        >
+          <SlidersHorizontal
+            className="-ml-0.5 size-4 shrink-0 text-gray-400 dark:text-gray-600"
+            aria-hidden="true"
+          />
+          Report Filters
+        </Button>
+      </div>
+      <dl className="grid grid-cols-1 gap-x-14 gap-y-10 border-t border-gray-200 p-6 md:grid-cols-2 dark:border-gray-800">
+        <div className="flex flex-col justify-between p-0">
+          <div>
+            <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+              Inherent risk
+            </dt>
+            <dd className="mt-0.5 text-sm/6 text-gray-500 dark:text-gray-500">
+              Risk scenarios over time grouped by risk level
+            </dd>
+          </div>
+          <BarChart
+            data={dataChart}
+            index="date"
+            categories={["Current year", "Same period last year"]}
+            colors={["blue", "lightGray"]}
+            yAxisWidth={45}
+            customTooltip={CustomTooltip}
+            yAxisLabel="Number of inherent risks"
+            barCategoryGap="20%"
+            valueFormatter={(value) => formatters.unit(value)}
+            className="mt-4 hidden h-60 md:block"
+          />
+          <BarChart
+            data={dataChart}
+            index="date"
+            categories={["Current year", "Same period last year"]}
+            colors={["blue", "lightGray"]}
+            showYAxis={false}
+            customTooltip={CustomTooltip}
+            barCategoryGap="20%"
+            className="mt-4 h-60 md:hidden"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div className="flex flex-col justify-between">
+          <div>
+            <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+              Quote-to-Deal ratio
+            </dt>
+            <dd className="mt-0.5 text-sm/6 text-gray-500 dark:text-gray-500">
+              Number of quotes compared to total deal size for given month
+            </dd>
+          </div>
+          <ComboChart
+            data={dataChart2}
+            index="date"
+            enableBiaxial={true}
+            barSeries={{
+              categories: ["Quotes"],
+              yAxisLabel: "Number of quotes / Deal size ($)",
+              valueFormatter: (value) =>
+                formatters.currency({ number: value, maxFractionDigits: 0 }),
+            }}
+            lineSeries={{
+              categories: ["Total deal size"],
+              colors: ["lightGray"],
+              showYAxis: false,
+            }}
+            customTooltip={CustomTooltip2}
+            className="mt-4 hidden h-60 md:block"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <ComboChart
+            data={dataChart2}
+            index="date"
+            enableBiaxial={true}
+            barSeries={{
+              categories: ["Quotes"],
+              showYAxis: false,
+            }}
+            lineSeries={{
+              categories: ["Total deal size"],
+              colors: ["lightGray"],
+              showYAxis: false,
+            }}
+            customTooltip={CustomTooltip2}
+            className="mt-4 h-60 md:hidden"
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+        </div>
+        <div className="flex flex-col justify-between">
+          <div>
+            <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+              ESG impact
+            </dt>
+            <dd className="mt-0.5 text-sm/6 text-gray-500 dark:text-gray-500">
+              Evaluation of addressed ESG criteria in biddings over time
+            </dd>
+          </div>
+          <BarChart
+            data={dataChart3}
+            index="date"
+            categories={["Addressed", "Unrealized"]}
+            colors={["emerald", "lightEmerald"]}
+            customTooltip={CustomTooltip3}
+            type="percent"
+            yAxisWidth={55}
+            yAxisLabel="% of criteria addressed"
+            barCategoryGap="30%"
+            className="mt-4 hidden h-60 md:block"
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+          <BarChart
+            data={dataChart3}
+            index="date"
+            categories={["Addressed", "Unrealized"]}
+            colors={["emerald", "lightEmerald"]}
+            customTooltip={CustomTooltip3}
+            showYAxis={false}
+            type="percent"
+            barCategoryGap="30%"
+            className="mt-4 h-60 md:hidden"
+          />
+        </div>
+        <div className="flex flex-col justify-between">
+          <div>
+            <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+              Bidder density
+            </dt>
+            <dd className="mt-0.5 text-sm/6 text-gray-500 dark:text-gray-500">
+              Competition level measured by number and size of bidders over time
+            </dd>
+          </div>
+          <ConditionalBarChart
+            data={dataChart4}
+            index="date"
+            categories={["Density"]}
+            colors={["orange"]}
+            customTooltip={CustomTooltip4}
+            valueFormatter={(value) =>
+              formatters.percentage({ number: value, decimals: 0 })
+            }
+            yAxisWidth={55}
+            yAxisLabel="Competition density (%)"
+            barCategoryGap="30%"
+            className="mt-4 hidden h-60 md:block"
+          />
+          <ConditionalBarChart
+            data={dataChart4}
+            index="date"
+            categories={["Density"]}
+            colors={["orange"]}
+            customTooltip={CustomTooltip4}
+            valueFormatter={(value) =>
+              formatters.percentage({ number: value, decimals: 0 })
+            }
+            showYAxis={false}
+            barCategoryGap="30%"
+            className="mt-4 h-60 md:hidden"
+          />
+        </div>
+      </dl>
+    </section>
+  )
 }
