@@ -9,9 +9,12 @@ export async function fetchStockData(query: string): Promise<StockData> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       body: JSON.stringify({ query }),
       cache: "no-store",
+      mode: "cors",
+      credentials: "omit",
     })
 
     if (!response.ok) {
@@ -24,18 +27,40 @@ export async function fetchStockData(query: string): Promise<StockData> {
       throw new Error(`API request failed with status ${response.status}: ${errorText}`)
     }
 
-    const data: ApiResponse = await response.json()
+    let data: ApiResponse
+    try {
+      data = await response.json()
+    } catch (parseError) {
+      console.error("Error parsing JSON response:", parseError)
+      throw new Error("Failed to parse server response")
+    }
+
     console.log("API Response:", data)
 
+    if (!data || !data.graph_data) {
+      throw new Error("Invalid response format from server")
+    }
+
     // Parse the graph_data string into an object
-    const graphData = JSON.parse(data.graph_data)
+    let graphData
+    try {
+      graphData = JSON.parse(data.graph_data)
+    } catch (parseError) {
+      console.error("Error parsing graph data:", parseError)
+      throw new Error("Failed to parse graph data")
+    }
+
     console.log("Parsed graph data:", graphData)
+
+    if (!graphData.price_data || !graphData.volume_data) {
+      throw new Error("Missing required data in graph_data")
+    }
 
     return {
       symbol: data.symbol,
       price_data: graphData.price_data,
       volume_data: graphData.volume_data,
-      news_data: data.news_data,
+      news_data: data.news_data || [],
       agent_analysis: data.agent_analysis,
     }
   } catch (error) {

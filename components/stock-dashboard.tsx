@@ -32,8 +32,14 @@ export default function StockDashboard() {
     setError(null)
     try {
       const data = await fetchStockData(searchQuery)
-      if (!data || !data.price_data || data.price_data.length === 0) {
+      if (!data) {
         throw new Error("No data received from the API")
+      }
+      if (!data.price_data || data.price_data.length === 0) {
+        throw new Error("No price data available")
+      }
+      if (!data.volume_data || data.volume_data.length === 0) {
+        throw new Error("No volume data available")
       }
       setStockData(data)
     } catch (err) {
@@ -71,10 +77,18 @@ export default function StockDashboard() {
           <Card className="border-destructive/50">
             <CardHeader>
               <CardTitle className="text-destructive">Error Loading Data</CardTitle>
+              <CardDescription>There was a problem loading the stock data</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>{error}</p>
-              <Button onClick={() => loadStockData(query)}>Try Again</Button>
+              <p className="text-sm text-muted-foreground">{error}</p>
+              <div className="flex flex-col gap-2">
+                <Button onClick={() => loadStockData(query)} variant="default">
+                  Try Again
+                </Button>
+                <Button onClick={() => setError(null)} variant="outline">
+                  Clear Error
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
