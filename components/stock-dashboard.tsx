@@ -31,21 +31,52 @@ export default function StockDashboard() {
     setLoading(true)
     setError(null)
     try {
+      console.log("Loading stock data for query:", searchQuery)
       const data = await fetchStockData(searchQuery)
+      console.log("Received stock data:", data)
+      
       if (!data) {
         throw new Error("No data received from the API")
       }
-      if (!data.price_data || data.price_data.length === 0) {
-        throw new Error("No price data available")
+      
+      // Validate price data
+      if (!data.price_data || !Array.isArray(data.price_data) || data.price_data.length === 0) {
+        console.error("Invalid price data:", data.price_data)
+        throw new Error("No price data available or invalid format")
       }
-      if (!data.volume_data || data.volume_data.length === 0) {
-        throw new Error("No volume data available")
+      
+      // Validate volume data
+      if (!data.volume_data || !Array.isArray(data.volume_data) || data.volume_data.length === 0) {
+        console.error("Invalid volume data:", data.volume_data)
+        throw new Error("No volume data available or invalid format")
       }
+      
+      // Validate news data
+      if (!data.news_data || !Array.isArray(data.news_data)) {
+        console.warn("Invalid news data format, setting to empty array:", data.news_data)
+        data.news_data = []
+      }
+      
+      // Validate agent analysis
+      if (!data.agent_analysis) {
+        console.warn("Missing agent analysis, setting default values")
+        data.agent_analysis = {
+          symbol: data.symbol || "Unknown",
+          company_name: "Unknown Company",
+          sentiment: "Neutral",
+          recommendation: "Hold",
+          reasoning: "No analysis available",
+          buy_or_sell_price: "N/A",
+          news_summary: "No news summary available",
+          stock_data_summary: "No stock data summary available"
+        }
+      }
+      
       setStockData(data)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch stock data"
-      setError(`Error: ${errorMessage}. Please try again later.`)
       console.error("Error loading stock data:", err)
+      setError(`Error: ${errorMessage}. Please try again later.`)
       setStockData(null)
     } finally {
       setLoading(false)
@@ -89,6 +120,9 @@ export default function StockDashboard() {
                   Clear Error
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                If the problem persists, please try refreshing the page or contact support.
+              </p>
             </CardContent>
           </Card>
         </div>

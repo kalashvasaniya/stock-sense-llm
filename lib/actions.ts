@@ -22,38 +22,46 @@ export async function fetchStockData(query: string): Promise<StockData> {
       console.error("API Error Response:", {
         status: response.status,
         statusText: response.statusText,
-        body: errorText
+        body: errorText,
+        headers: Object.fromEntries(response.headers.entries())
       })
       throw new Error(`API request failed with status ${response.status}: ${errorText}`)
     }
 
     let data: ApiResponse
     try {
-      data = await response.json()
+      const responseText = await response.text()
+      console.log("Raw API Response:", responseText)
+      data = JSON.parse(responseText)
     } catch (parseError) {
       console.error("Error parsing JSON response:", parseError)
-      throw new Error("Failed to parse server response")
+      throw new Error(`Failed to parse server response: ${parseError instanceof Error ? parseError.message : String(parseError)}`)
     }
 
     console.log("API Response:", data)
 
     if (!data || !data.graph_data) {
-      throw new Error("Invalid response format from server")
+      console.error("Invalid response format:", data)
+      throw new Error("Invalid response format from server: missing graph_data")
     }
 
     // Parse the graph_data string into an object
     let graphData
     try {
-      graphData = JSON.parse(data.graph_data)
+      // Clean the graph_data string to ensure it's valid JSON
+      const cleanedGraphData = data.graph_data.replace(/\n/g, "").replace(/\s+/g, " ")
+      console.log("Cleaned graph_data:", cleanedGraphData)
+      graphData = JSON.parse(cleanedGraphData)
     } catch (parseError) {
-      console.error("Error parsing graph data:", parseError)
-      throw new Error("Failed to parse graph data")
+      console.error("Error parsing graph data:", parseError, "Raw graph_data:", data.graph_data)
+      throw new Error(`Failed to parse graph data: ${parseError instanceof Error ? parseError.message : String(parseError)}`)
     }
 
     console.log("Parsed graph data:", graphData)
 
     if (!graphData.price_data || !graphData.volume_data) {
-      throw new Error("Missing required data in graph_data")
+      console.error("Missing required data in graph_data:", graphData)
+      throw new Error("Missing required data in graph_data: price_data or volume_data is missing")
     }
 
     return {
